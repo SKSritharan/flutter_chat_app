@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_chat_app/screens/profile_screen.dart';
 import 'package:flutter_chat_app/screens/signin_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -12,28 +13,20 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home Screen'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed(ProfileScreen.routeName);
+            },
+            icon: const Icon(Icons.person),
+          ),
+        ],
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Hello! ${_auth?.displayName}'),
-            ElevatedButton(
-              onPressed: () {
-                FirebaseAuth.instance.signOut();
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => const SignInScreen(),
-                  ),
-                  (Route<dynamic> route) => false,
-                );
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(
-                    Theme.of(context).colorScheme.error),
-              ),
-              child: const Text('Logout'),
-            ),
           ],
         ),
       ),

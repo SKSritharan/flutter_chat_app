@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_chat_app/screens/signup_screen.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-import 'home_screen.dart';
+import './signup_screen.dart';
+import './home_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   static const routeName = '/login';
@@ -164,6 +166,23 @@ class _SignInScreenState extends State<SignInScreen> {
                       ),
                     ),
                   ),
+                  Container(
+                    padding: const EdgeInsets.only(top: 16, bottom: 8),
+                    child: Text(
+                      'OR',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 24),
+                    child: SignInButton(
+                      Buttons.Google,
+                      text: "Sign up with Google",
+                      onPressed: () => signInWithGoogle(context),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -180,7 +199,7 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-  void _submitForm(context) async {
+  Future<void> _submitForm(context) async {
     FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
       try {
@@ -227,6 +246,42 @@ class _SignInScreenState extends State<SignInScreen> {
         print(e);
       }
     }
+  }
+
+  Future<void> signInWithGoogle(context) async {
+    // initialize GoogleSignIn
+    final googleSignIn = GoogleSignIn();
+
+    // start the sign-in process
+    final googleUser = await googleSignIn.signIn();
+
+    // get the authentication credentials
+    final googleAuth = await googleUser?.authentication;
+
+    // authenticate with Firebase
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // get the UserCredential from Firebase
+    final userCredential =
+        await FirebaseAuth.instance.signInWithCredential(credential);
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Login successful!')));
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => const HomeScreen(),
+        transitionsBuilder: (_, Animation<double> animation, __, Widget child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 500),
+      ),
+    );
   }
 }
 
