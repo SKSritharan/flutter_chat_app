@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter_chat_app/screens/home_screen.dart';
+import 'package:flutter_chat_app/screens/profile_screen.dart';
 import 'package:flutter_chat_app/screens/signin_screen.dart';
 import 'package:flutter_chat_app/screens/signup_screen.dart';
 import 'package:flutter_chat_app/screens/splash_screen.dart';
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
         SignInScreen.routeName: (ctx) => const SignInScreen(),
         SignUpScreen.routeName: (ctx) => const SignUpScreen(),
         HomeScreen.routeName: (ctx) => const HomeScreen(),
+        ProfileScreen.routeName: (ctx)=> const ProfileScreen(),
       },
     );
   }

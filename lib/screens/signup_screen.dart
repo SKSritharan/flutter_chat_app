@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_chat_app/screens/home_screen.dart';
-import 'package:flutter_chat_app/screens/signin_screen.dart';
+
+import './home_screen.dart';
+import './signin_screen.dart';
+
 
 class SignUpScreen extends StatefulWidget {
   static const routeName = '/register';
@@ -13,12 +15,14 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final _auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   bool _passwordVisible = true;
 
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  late var _profileImage;
 
   final _usernameFocusNode = FocusNode();
   final _emailFocusNode = FocusNode();
@@ -213,18 +217,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  void _submitForm(context) async {
+  Future<void> _submitForm(context) async {
     FocusScope.of(context).unfocus();
     if (_formKey.currentState!.validate()) {
       try {
-        UserCredential user =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text,
+        UserCredential user = await _auth.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
           password: _passwordController.text,
         );
 
-        await FirebaseAuth.instance.currentUser!
-            .updateDisplayName(_usernameController.text);
+        await _auth.currentUser!
+            .updateDisplayName(_usernameController.text.trim());
 
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Registration successful!')));
@@ -255,8 +258,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   'An error occurred. Please check your internet connection and try again'),
             ),
           );
+        } else {
+          // Handle other FirebaseAuthExceptions
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Registration failed. Please try again later.')));
         }
-      } catch (e) {
+      } on Error catch (e) {
+        // Handle other types of errors
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Registration failed. Please try again later.')));
       }
